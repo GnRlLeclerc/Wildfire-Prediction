@@ -1,0 +1,9 @@
+# Pycache
+__pycache__/
+
+# Dataset
+*.zip
+/dataset/
+
+# Direnv
+/.direnv/
