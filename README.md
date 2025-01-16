@@ -5,7 +5,12 @@ Deadline: 21st of February 2025.
 
 Additional rule: we are not allowed to use the `dataset/train` dataset labels.
 
-The "valid" validation dataset was split into a training and testing set, defined in [`train.csv`](./train.csv) and [`test.csv`](./test.csv).
+The "valid" validation dataset was split into a training and testing set, defined in [`train.csv`](./train.csv) (80%) and [`test.csv`](./test.csv) (20%).
+
+| Dataset | Fire | No Fire | Fire % | No Fire % |
+| ------- | ---- | ------- | ------ | --------- |
+| Train   | 2811 | 2266    | 55.37% | 44.63%    |
+| Test    | 669  | 554     | 54.70% | 45.30%    |
 
 ## Quickstart
 
