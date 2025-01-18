@@ -3,20 +3,22 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from torch import Tensor, clamp
+from torch import Tensor
 
 
-def clip_tensor_image(x: Tensor) -> Tensor:
-    """Clip a tensor / batched tensor's values for image display depending on the type.
-    - int: [0, 255]
+def normalize_tensor_image(x: Tensor) -> Tensor:
+    """Normalize a tensor / batched tensor's values for image display depending on the type.
+    - int: [0, 255] -> [0, 1]
     - float: [0, 1]
-    This avoids cluttering stdout with warnings about values needing to be clipped when using matplotlib.
     """
+    min = x.min()
+    max = x.max()
+
     match x.dtype:
         case torch.float:
-            return clamp(x, 0, 1)
-        case torch.int:
-            return clamp(x, 0, 255)
+            return (x - min) / (max - min)
+        case torch.int | torch.uint8:
+            return ((x.float() - min) / (max - min) * 255).to(torch.uint8)
         case _:
             raise ValueError(f"Unsupported tensor type {x.dtype}")
 
@@ -26,7 +28,7 @@ def from_torch(x: Tensor) -> np.ndarray:
     Accepts a batched or unbatched single image."""
 
     dim = len(x.shape)
-    x = clip_tensor_image(x)
+    x = normalize_tensor_image(x)
 
     if dim == 3:
         return x.permute(1, 2, 0).detach().cpu().numpy()
