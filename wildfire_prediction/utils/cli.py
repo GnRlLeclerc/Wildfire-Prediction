@@ -26,7 +26,7 @@ def classifier(func):
     return click.option(
         "--classifier",
         help="The classifier to use",
-        type=click.Choice(["resnext"]),
+        type=click.Choice(["resnext", "vit_b_16", "vit_b_32"]),
     )(func)
 
 

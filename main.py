@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 
 from wildfire_prediction.dataset import WildfireDataset
 from wildfire_prediction.models.resnext import ResnextClassifier
+from wildfire_prediction.models.vit import VitClassifier
 from wildfire_prediction.test.classifier import test_classifier
 from wildfire_prediction.train.classifier import train_classifier
 from wildfire_prediction.utils.cli import (
@@ -43,6 +44,10 @@ def test(
     match classifier:
         case "resnext":
             model = ResnextClassifier()
+        case "vit_b_16":
+            model = VitClassifier("vit_b_16")
+        case "vit_b_32":
+            model = VitClassifier("vit_b_32")
         case _:
             raise ValueError(f"Unknown classifier variant: {classifier}")
 
@@ -88,6 +93,10 @@ def train(
     match classifier:
         case "resnext":
             model = ResnextClassifier()
+        case "vit_b_16":
+            model = VitClassifier("vit_b_16")
+        case "vit_b_32":
+            model = VitClassifier("vit_b_32")
         case _:
             raise ValueError(f"Unknown classifier variant: {classifier}")
 
