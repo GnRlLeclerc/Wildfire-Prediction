@@ -66,4 +66,4 @@ class Results:
 
     def to_json(self) -> str:
         """Dump results to a JSON string"""
-        return json.dumps(self.__dict__)
+        return json.dumps(self.__dict__, indent=2)

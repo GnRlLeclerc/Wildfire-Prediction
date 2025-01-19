@@ -31,3 +31,19 @@ Then unpack it into a `dataset/` directory:
 ```bash
 unzip -q wildfire-prediction-dataset.zip -d dataset
 ```
+
+## CLI Commands
+
+The following cli commands are available. Run `python main.py --help` for more information.
+
+| Command | Description             |
+| ------- | ----------------------- |
+| `test`  | Test a classifier model |
+
+### Testing a model
+
+Make sure that you have the relevant model checkpoints.
+
+```bash
+python main.py test --classifier resnext --checkpoints model.pth
+```

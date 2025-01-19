@@ -7,3 +7,11 @@ __pycache__/
 
 # Direnv
 /.direnv/
+
+# Model outputs
+*.pt
+*.pth
+*.pkl
+
+*.json
+*.jsonc

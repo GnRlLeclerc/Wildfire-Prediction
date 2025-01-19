@@ -65,6 +65,9 @@
                 matplotlib
                 # GTK backend for matplotlib
                 pygobject3
+
+                # Utils
+                click
               ]
             ))
           ];
