@@ -4,6 +4,7 @@ import json
 from dataclasses import dataclass
 from typing import Literal
 
+import matplotlib.pyplot as plt
 import torch
 from torch import Tensor
 
@@ -87,6 +88,62 @@ class Results:
         """Append the results to a log file"""
         with open(path, "a") as f:
             f.write(json.dumps(filter_null_attrs(self.__dict__)) + "\n")
+
+    @staticmethod
+    def plot_loss(results: list["Results"]):
+        """Plot the loss from a list of training results"""
+
+        losses = [result.loss for result in results if result.loss is not None]
+
+        plt.plot(losses)
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.title("Training Loss")
+        plt.grid()
+        plt.show()
+
+    @staticmethod
+    def plot_metrics(training: list["Results"], testing: list["Results"]):
+        """Plot the metrics from training and testing results"""
+
+        train_accuracy = [result.accuracy for result in training]
+        test_accuracy = [result.accuracy for result in testing]
+
+        train_precision = [result.precision for result in training]
+        test_precision = [result.precision for result in testing]
+
+        train_recall = [result.recall for result in training]
+        test_recall = [result.recall for result in testing]
+
+        train_f1 = [result.f1 for result in training]
+        test_f1 = [result.f1 for result in testing]
+
+        fig, axes = plt.subplots(2, 2, figsize=(12, 12))
+
+        fig.suptitle("Training Metrics")
+
+        axes[0, 0].plot(train_accuracy, label="Train")
+        axes[0, 0].plot(test_accuracy, label="Test")
+        axes[0, 0].set_title("Accuracy")
+
+        axes[0, 1].plot(train_precision, label="Train")
+        axes[0, 1].plot(test_precision, label="Test")
+        axes[0, 1].set_title("Precision")
+
+        axes[1, 0].plot(train_recall, label="Train")
+        axes[1, 0].plot(test_recall, label="Test")
+        axes[1, 0].set_title("Recall")
+
+        axes[1, 1].plot(train_f1, label="Train")
+        axes[1, 1].plot(test_f1, label="Test")
+        axes[1, 1].set_title("F1")
+
+        for row in axes:
+            for cell in row:
+                cell.legend()
+                cell.grid()
+
+        plt.show()
 
 
 def filter_null_attrs(d: dict) -> dict:

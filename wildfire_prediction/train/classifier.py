@@ -23,7 +23,7 @@ def train_classifier(
 
     classifier.to(device)
     optimizer = Adam(classifier.parameters(), lr=learning_rate)
-    log_file = "training_logs.jsonc"
+    log_file = "training_logs.jsonl"
 
     for i in tqdm(range(epochs), desc="Training classifier"):
 
@@ -43,6 +43,7 @@ def train_classifier(
             # Compute the loss
             loss = F.binary_cross_entropy_with_logits(outputs, labels.float())
             loss.backward()
+            results.loss += loss.item()  # type: ignore
 
             # Update the weights
             optimizer.step()

@@ -17,6 +17,7 @@ from wildfire_prediction.utils.cli import (
     device,
     save_results,
 )
+from wildfire_prediction.utils.results import Results
 
 
 @click.group()
@@ -98,6 +99,31 @@ def train(
     test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
     train_classifier(model, train_loader, test_loader, epochs, learning_rate, device)
+
+
+@main.command()
+@click.option(
+    "--path",
+    help="The path to the logs",
+    type=str,
+)
+def logs(path: str):
+    """Plot training logs."""
+
+    training: list[Results] = []
+    testing: list[Results] = []
+
+    # Read the log file
+    with open(path, "r") as f:
+        for line in f:
+            result = Results.from_json(line)
+            if result.mode == "train":
+                training.append(result)
+            else:
+                testing.append(result)
+
+    Results.plot_loss(training)
+    Results.plot_metrics(training, testing)
 
 
 if __name__ == "__main__":

@@ -36,10 +36,11 @@ unzip -q wildfire-prediction-dataset.zip -d dataset
 
 The following cli commands are available. Run `python main.py --help` for more information.
 
-| Command | Description              |
-| ------- | ------------------------ |
-| `test`  | Test a classifier model  |
-| `train` | Train a classifier model |
+| Command | Description                   |
+| ------- | ----------------------------- |
+| `test`  | Test a classifier model       |
+| `train` | Train a classifier model      |
+| `logs`  | Plot classifier training logs |
 
 ### Testing a model
 
@@ -53,4 +54,10 @@ python main.py test --classifier resnext --checkpoints model.pth
 
 ```bash
 python main.py train --classifier resnext --epochs 30 --learning-rate 0.0001 --batch-size 8
+```
+
+### Plot training logs
+
+```bash
+python main.py logs --path training_logs.jsonl
 ```
