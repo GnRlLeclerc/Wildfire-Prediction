@@ -8,6 +8,9 @@ __pycache__/
 # Direnv
 /.direnv/
 
+# Images
+*.png
+
 # Model outputs
 *.pt
 *.pth
