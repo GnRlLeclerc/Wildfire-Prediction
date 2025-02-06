@@ -52,7 +52,7 @@ def test(
             raise ValueError(f"Unknown classifier variant: {classifier}")
 
     # Load the model checkpoints
-    model.load_state_dict(torch.load(checkpoints, weights_only=True))
+    model.load_state_dict(torch.load(checkpoints, weights_only=True, map_location=device))
 
     # Load the dataset
     dataset = WildfireDataset("test")
