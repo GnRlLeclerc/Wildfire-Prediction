@@ -145,6 +145,35 @@ class Results:
 
         plt.show()
 
+    @staticmethod
+    def plot_evaluations(results: list["Results"], models: list[str]):
+        """Plot evaluation metrics from the testing results"""
+
+        metrics = {
+            "Accuracy": [result.accuracy for result in results],
+            "Precision": [result.precision for result in results],
+            "Recall": [result.recall for result in results],
+            "F1": [result.f1 for result in results]
+        }
+
+        fig, axes = plt.subplots(2, 2, figsize=(12, 12))
+
+        fig.suptitle("Testing Metrics")
+
+        viridis = plt.cm.get_cmap('viridis', len(models))
+        colors = [viridis(i) for i in range(len(models))]
+
+        for ax, (name, values) in zip(axes.flatten(), metrics.items()):
+            sorted_pairs = sorted(zip(values, models), reverse=True)
+            sorted_values, sorted_models = zip(*sorted_pairs)
+
+            ax.bar(sorted_models, sorted_values, color=colors)
+            ax.set_ylim(0.9, 1.0)
+            ax.set_title(name)
+            ax.grid()
+
+        plt.show()
+
 
 def filter_null_attrs(d: dict) -> dict:
     """Filter out null attributes from a dictionary"""

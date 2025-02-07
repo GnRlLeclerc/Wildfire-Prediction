@@ -19,6 +19,10 @@ from wildfire_prediction.utils.cli import (
     save_results,
 )
 from wildfire_prediction.utils.results import Results
+from wildfire_prediction.utils.files import (
+    get_filename,
+    recursive_list_files,
+)
 
 
 @click.group()
@@ -133,6 +137,28 @@ def logs(path: str):
 
     Results.plot_loss(training)
     Results.plot_metrics(training, testing)
+
+
+@main.command()
+@click.option(
+    "--path",
+    help="The path to the logs",
+    type=str,
+)
+def plot_evaluations(path: str):
+    """Plot testing logs."""
+
+    logs: list[Results] = []
+    models: list[str] = []
+
+    # Read the log files
+    for file_path in recursive_list_files(path):
+        with open(file_path, "r") as f:
+            result = Results.from_json(f.read())
+            logs.append(result)
+            models.append(get_filename(file_path, use_extention=False))
+
+    Results.plot_evaluations(logs, models)
 
 
 if __name__ == "__main__":
