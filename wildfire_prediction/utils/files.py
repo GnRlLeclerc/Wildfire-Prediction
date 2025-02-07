@@ -18,3 +18,13 @@ def recursive_list_files(path: str):
     for root, _, files in os.walk(path):
         for file in files:
             yield os.path.join(root, file)
+
+
+def get_filename(path: str, use_extention: bool = True):
+    """
+    Extract name of a file from the path.
+    """
+    basename = os.path.basename(path)
+    if use_extention:
+        return basename
+    return os.path.splitext(basename)[0]
