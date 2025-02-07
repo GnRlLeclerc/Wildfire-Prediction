@@ -58,7 +58,8 @@ def train_classifier(
         results.append_log(log_file)
 
         # Save the model checkpoints every 20% of the epochs
-        if i % (epochs // 5) == 0:
+        checkpoint_frequency = max(epochs // 5, 1)
+        if i % checkpoint_frequency == 0:
             torch.save(classifier.state_dict(), f"classifier-{i}-{epochs}.pth")
 
     # Save the final model
