@@ -153,14 +153,14 @@ class Results:
             "Accuracy": [result.accuracy for result in results],
             "Precision": [result.precision for result in results],
             "Recall": [result.recall for result in results],
-            "F1": [result.f1 for result in results]
+            "F1": [result.f1 for result in results],
         }
 
         fig, axes = plt.subplots(2, 2, figsize=(12, 12))
 
         fig.suptitle("Testing Metrics")
 
-        viridis = plt.cm.get_cmap('viridis', len(models))
+        viridis = plt.cm.get_cmap("viridis", len(models))
         colors = [viridis(i) for i in range(len(models))]
 
         for ax, (name, values) in zip(axes.flatten(), metrics.items()):
