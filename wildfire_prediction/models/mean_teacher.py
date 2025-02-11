@@ -1,18 +1,27 @@
 """Mean-Teacher SSL method"""
 
-from torch import nn, Tensor
-from torchvision.models import resnet18, ResNet18_Weights
+import torch
+from torch import Tensor, nn
+from torchvision.models.resnet import ResNeXt50_32X4D_Weights
 
 from wildfire_prediction.models.base import Classifier
 
 
 class MeanTeacherClassifier(Classifier):
-    def __init__(self, num_classes: int = 2) -> None:
+    def __init__(self, num_classes: int = 1) -> None:
         """Initialize the classifier"""
         super().__init__()
 
-        self.student = resnet18(weights=ResNet18_Weights.DEFAULT)
-        self.teacher = resnet18(weights=ResNet18_Weights.DEFAULT)
+        self.student = torch.hub.load(
+            "pytorch/vision:v0.10.0",
+            "resnext50_32x4d",
+            weights=ResNeXt50_32X4D_Weights.DEFAULT,
+        )
+        self.teacher = torch.hub.load(
+            "pytorch/vision:v0.10.0",
+            "resnext50_32x4d",
+            weights=ResNeXt50_32X4D_Weights.DEFAULT,
+        )
 
         self.student.fc = nn.Linear(self.student.fc.in_features, num_classes)  # type: ignore
         self.teacher.fc = nn.Linear(self.teacher.fc.in_features, num_classes)  # type: ignore
