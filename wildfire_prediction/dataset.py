@@ -36,12 +36,13 @@ class WildfireDataset(Dataset):
         super().__init__()
 
         # Load the paths
-        self.split = np.loadtxt(f"{split}.csv", dtype=str, delimiter=";")
+        self.data = np.loadtxt(f"{split}.csv", dtype=str, delimiter=";")
+        self.split = split
 
     def __len__(self):
         """Returns the length of the dataset."""
 
-        return len(self.split)
+        return len(self.data)
 
     def __getitem__(self, index: int) -> tuple[Tensor, Tensor]:
         """Get an image and its label by index. The index is over training or testing data.
@@ -51,9 +52,7 @@ class WildfireDataset(Dataset):
             label: A boolean label tensor.
         """
 
-        is_fire = self.split[index, 1] == "1"
-        path = self.split[index, 0]
-
+        path = self.data[index, 0]
         img = Image.open(path)
 
         # Avoid corrupted images
@@ -63,4 +62,9 @@ class WildfireDataset(Dataset):
             # Default to the first image
             return self.__getitem__(0)
 
-        return img, torch.tensor(is_fire, dtype=torch.bool)
+        if self.split in ["train", "test"]:
+            is_fire = self.data[index, 1] == "1"
+            return img, torch.tensor(is_fire, dtype=torch.bool)
+
+        # For unlabeled data return only the image
+        return img

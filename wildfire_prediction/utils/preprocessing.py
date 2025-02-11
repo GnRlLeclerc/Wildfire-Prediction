@@ -101,11 +101,12 @@ def get_unlabeled_train(path: str, ratio: float = 0.5, seed: int = 42):
 
     random.seed(seed)
 
-    train: list[str] = []
+    train: list[tuple[str, None]] = []
 
     for path in recursive_list_files(os.path.join(path, "train")):
+        sample = (path, None)
         if random.random() < ratio:
-            train.append(path)
+            train.append(sample)
 
     train_array = np.array(train)
 

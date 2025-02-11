@@ -40,7 +40,11 @@ def train_mean_teacher(
             student_outputs = model(labeled_data).squeeze()
 
             # Compute loss for labeled data
-            loss_labeled = F.cross_entropy(student_outputs, labels.float())
+            loss_labeled = F.binary_cross_entropy_with_logits(
+                student_outputs, labels.float()
+            )
+
+            results.add_predictions(student_outputs, labels)
 
             # Forward pass for unlabeled data
             with torch.no_grad():
@@ -51,7 +55,6 @@ def train_mean_teacher(
             loss_unlabeled = F.mse_loss(student_outputs_unlabeled, teacher_outputs)
 
             total_loss = loss_labeled + loss_unlabeled
-            results.add_predictions(student_outputs, labels)
 
             # Backward
             optimizer.zero_grad()
