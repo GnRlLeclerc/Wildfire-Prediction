@@ -32,7 +32,7 @@ _transforms = transforms.Compose(
 class WildfireDataset(Dataset):
     """Wildfire dataset loader."""
 
-    def __init__(self, split: Literal["train", "test"]) -> None:
+    def __init__(self, split: Literal["train", "test", "train_unlabeled"]) -> None:
         super().__init__()
 
         # Load the paths

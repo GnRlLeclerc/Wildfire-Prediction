@@ -89,3 +89,24 @@ def compute_train_test_split(path: str, train_ratio=0.8, seed=42):
 
     np.savetxt("train.csv", train_array, fmt="%s", delimiter=";")
     np.savetxt("test.csv", test_array, fmt="%s", delimiter=";")
+
+
+def get_unlabeled_train(path: str, ratio: float = 0.5, seed: int = 42):
+    """Get a train unlabeled data from the "train" directory.
+
+    Args:
+        path (str): Path to the dataset directory. Do not include the "train" directory in the path.
+        ratio (float): Defines how much train data to use.
+    """
+
+    random.seed(seed)
+
+    train: list[str] = []
+
+    for path in recursive_list_files(os.path.join(path, "train")):
+        if random.random() < ratio:
+            train.append(path)
+
+    train_array = np.array(train)
+
+    np.savetxt("train_unlabeled.csv", train_array, fmt="%s", delimiter=";")
