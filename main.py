@@ -9,9 +9,11 @@ from torch.utils.data import DataLoader
 from wildfire_prediction.dataset import WildfireDataset
 from wildfire_prediction.models.alexnet import AlexnetClassifier
 from wildfire_prediction.models.resnext import ResnextClassifier
+from wildfire_prediction.models.mean_teacher import MeanTeacherClassifier
 from wildfire_prediction.models.vit import VitClassifier
 from wildfire_prediction.test.classifier import test_classifier
 from wildfire_prediction.train.classifier import train_classifier
+from wildfire_prediction.train.mean_teacher import train_mean_teacher
 from wildfire_prediction.utils.cli import (
     batch_size,
     checkpoints,
@@ -55,11 +57,15 @@ def test(
             model = VitClassifier("vit_b_32")
         case "alexnet":
             model = AlexnetClassifier()
+        case "mean_teacher":
+            model = MeanTeacherClassifier()
         case _:
             raise ValueError(f"Unknown classifier variant: {classifier}")
 
     # Load the model checkpoints
-    model.load_state_dict(torch.load(checkpoints, weights_only=True, map_location=device))
+    model.load_state_dict(
+        torch.load(checkpoints, weights_only=True, map_location=device)
+    )
 
     # Load the dataset
     dataset = WildfireDataset("test")
@@ -106,6 +112,8 @@ def train(
             model = VitClassifier("vit_b_32")
         case "alexnet":
             model = AlexnetClassifier()
+        case "mean_teacher":
+            model = MeanTeacherClassifier()
         case _:
             raise ValueError(f"Unknown classifier variant: {classifier}")
 
@@ -116,7 +124,25 @@ def train(
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
-    train_classifier(model, train_loader, test_loader, epochs, learning_rate, device)
+    if classifier == "mean_teacher":
+        train_dataset_unlabeled = WildfireDataset("train_unlabeled")
+        train_loader_unlabeled = DataLoader(
+            train_dataset_unlabeled, batch_size=batch_size, shuffle=True
+        )
+
+        train_mean_teacher(
+            model,
+            train_loader,
+            train_loader_unlabeled,
+            test_loader,
+            epochs,
+            learning_rate,
+            device,
+        )
+    else:
+        train_classifier(
+            model, train_loader, test_loader, epochs, learning_rate, device
+        )
 
 
 @main.command()
