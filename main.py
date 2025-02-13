@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 
 from wildfire_prediction.dataset import WildfireDataset
 from wildfire_prediction.models.alexnet import AlexnetClassifier
+from wildfire_prediction.models.ensemble import Ensemble
 from wildfire_prediction.models.resnext import ResnextClassifier
 from wildfire_prediction.models.mean_teacher import MeanTeacherClassifier
 from wildfire_prediction.models.vit import VitClassifier
@@ -60,6 +61,13 @@ def test(
             model = AlexnetClassifier()
         case "mean_teacher":
             model = MeanTeacherClassifier()
+        case "ensemble":
+            # TODO Hardcoded for now
+            model = Ensemble([
+                AlexnetClassifier(),
+                AlexnetClassifier(),
+                AlexnetClassifier()
+            ])
         case _:
             raise ValueError(f"Unknown classifier variant: {classifier}")
 
@@ -113,6 +121,13 @@ def train(
             model = VitClassifier("vit_b_32")
         case "alexnet":
             model = AlexnetClassifier()
+        case "ensemble":
+            # TODO Hardcoded for now
+            model = Ensemble([
+                AlexnetClassifier(),
+                AlexnetClassifier(),
+                AlexnetClassifier()
+            ])
         case _:
             raise ValueError(f"Unknown classifier variant: {classifier}")
 

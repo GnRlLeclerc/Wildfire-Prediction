@@ -5,7 +5,7 @@ from wildfire_prediction.models.base import Classifier
 
 
 class Ensemble(Classifier):
-    def __init__(self, models: List[Classifier], weight_paths: Optional[List[str]] ):
+    def __init__(self, models: List[Classifier], weight_paths: Optional[List[str]] = None):
         self.models = models
 
         if weight_paths is not None:
