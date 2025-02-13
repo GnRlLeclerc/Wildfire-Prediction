@@ -1,12 +1,14 @@
 import torch
 from typing import List, Optional
-from torch import Tensor
+from torch import Tensor, nn
 from wildfire_prediction.models.base import Classifier
 
 
-class Ensemble(Classifier):
+class Ensemble():
     def __init__(self, models: List[Classifier], weight_paths: Optional[List[str]] = None):
-        self.models = models
+        super(Ensemble, self).__init__()
+        
+        self.models = nn.ModuleList(models)
 
         if weight_paths is not None:
             for model, weight_file in zip(self.models, weight_paths):
