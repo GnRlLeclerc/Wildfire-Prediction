@@ -4,7 +4,7 @@ from torch import Tensor, nn
 from wildfire_prediction.models.base import Classifier
 
 
-class Ensemble():
+class Ensemble(Classifier, nn.Module):
     def __init__(self, models: List[Classifier], weight_paths: Optional[List[str]] = None):
         super(Ensemble, self).__init__()
         
