@@ -1,6 +1,7 @@
 """Train mean teacher"""
 
 import torch
+from torch import Tensor
 import torch.nn.functional as F
 from torch.optim import Adam
 from torch.utils.data import DataLoader
@@ -9,9 +10,39 @@ from tqdm import tqdm
 from wildfire_prediction.models.mean_teacher import MeanTeacherClassifier
 from wildfire_prediction.test.classifier import test_classifier
 from wildfire_prediction.utils.results import Results
+from wildfire_prediction.train.losses import mse_scaled_loss, kl_divergence_loss
 
 
-def train_mean_teacher(
+def get_teacher_student_loss(
+    student_outputs: Tensor,
+    teacher_outputs: Tensor,
+    teacher_student_loss: str,
+):
+    """
+    Compute loss between student and teacher models using either:
+    - classical mse loss ("mse_standard"),
+    - mse loss with temperature scaling ("mse_scaled"),
+    - knowledge distillation loss (kl divergence with temperature scaling - "kl_divergence")
+
+    The temperature scaling (suggested by Guo et al. in "On Calibration of Modern Neural Networks")
+    is applied to both the student and teacher outputs to smooth the logits and improve model calibration.
+
+    Reference:
+        Guo, C., Pleiss, G., Sun, Y., & Weinberger, K. Q. (2017). On Calibration of Modern Neural Networks.
+        https://arxiv.org/abs/1706.04599
+    """
+    match teacher_student_loss:
+        case "mse_standard":
+            return F.mse_loss(student_outputs, teacher_outputs, reduction="mean")
+        case "mse_scaled":
+            return mse_scaled_loss(student_outputs, teacher_outputs)
+        case "kl_divergence":
+            return kl_divergence_loss(student_outputs, teacher_outputs)
+        case _:
+            raise ValueError(f"Unknown loss type: {teacher_student_loss}")
+
+
+def train_mean_teacher_classifier(
     model: MeanTeacherClassifier,
     train_loader_labeled: DataLoader,
     train_loader_unlabeled: DataLoader,
@@ -19,6 +50,7 @@ def train_mean_teacher(
     epochs: int,
     learning_rate: float,
     device: str,
+    teacher_student_loss: str,
 ):
     """Train mean teacher"""
     model.to(device)
@@ -52,8 +84,9 @@ def train_mean_teacher(
             student_outputs_unlabeled = model(unlabeled_data).squeeze()
 
             # Compute loss for unlabeled data
-            loss_unlabeled = F.mse_loss(student_outputs_unlabeled, teacher_outputs)
-
+            loss_unlabeled = get_teacher_student_loss(
+                student_outputs_unlabeled, teacher_outputs, teacher_student_loss
+            )
             total_loss = loss_labeled + loss_unlabeled
 
             # Backward

@@ -48,3 +48,15 @@ def save_results(func):
         help="The path to save the results. If not provided, results will not be saved.",
         type=str,
     )(func)
+
+
+def teacher_student_loss(func):
+    return click.option(
+        "--teacher_student_loss",
+        default="kl_divergence",
+        help="""The version of the loss used in mean teacher model for unlabeled data.
+            'mse_standard' - classical MSE,
+            'mse_scaled' - MSE loss with temperature scaling,
+            'kl_divergence' - KL divergence with temperature scaling""",
+        type=click.Choice(["mse_standard", "mse_scaled", "kl_divergence"]),
+    )(func)

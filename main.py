@@ -13,13 +13,14 @@ from wildfire_prediction.models.mean_teacher import MeanTeacherClassifier
 from wildfire_prediction.models.vit import VitClassifier
 from wildfire_prediction.test.classifier import test_classifier
 from wildfire_prediction.train.classifier import train_classifier
-from wildfire_prediction.train.mean_teacher import train_mean_teacher
+from wildfire_prediction.train.mean_teacher import train_mean_teacher_classifier
 from wildfire_prediction.utils.cli import (
     batch_size,
     checkpoints,
     classifier,
     device,
     save_results,
+    teacher_student_loss,
 )
 from wildfire_prediction.utils.results import Results
 from wildfire_prediction.utils.files import (
@@ -112,8 +113,6 @@ def train(
             model = VitClassifier("vit_b_32")
         case "alexnet":
             model = AlexnetClassifier()
-        case "mean_teacher":
-            model = MeanTeacherClassifier()
         case _:
             raise ValueError(f"Unknown classifier variant: {classifier}")
 
@@ -124,25 +123,55 @@ def train(
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
-    if classifier == "mean_teacher":
-        train_dataset_unlabeled = WildfireDataset("train_unlabeled")
-        train_loader_unlabeled = DataLoader(
-            train_dataset_unlabeled, batch_size=batch_size, shuffle=True
-        )
+    train_classifier(model, train_loader, test_loader, epochs, learning_rate, device)
 
-        train_mean_teacher(
-            model,
-            train_loader,
-            train_loader_unlabeled,
-            test_loader,
-            epochs,
-            learning_rate,
-            device,
-        )
-    else:
-        train_classifier(
-            model, train_loader, test_loader, epochs, learning_rate, device
-        )
+
+@main.command()
+@batch_size
+@device
+@teacher_student_loss
+@click.option(
+    "--epochs",
+    help="The amount of epochs to train the model for",
+    type=int,
+)
+@click.option(
+    "--learning-rate",
+    help="The optimizer learning rate",
+    type=float,
+)
+def train_mean_teacher(
+    batch_size: int,
+    device: str,
+    teacher_student_loss: str,
+    epochs: int,
+    learning_rate: float,
+):
+    """Train mean teacher classifier."""
+
+    model = MeanTeacherClassifier()
+
+    # Load the dataset
+    train_dataset = WildfireDataset("train")
+    test_dataset = WildfireDataset("test")
+    train_dataset_unlabeled = WildfireDataset("train_unlabeled")
+
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size)
+    train_loader_unlabeled = DataLoader(
+        train_dataset_unlabeled, batch_size=batch_size, shuffle=True
+    )
+
+    train_mean_teacher_classifier(
+        model,
+        train_loader,
+        train_loader_unlabeled,
+        test_loader,
+        epochs,
+        learning_rate,
+        device,
+        teacher_student_loss,
+    )
 
 
 @main.command()
