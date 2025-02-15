@@ -6,6 +6,7 @@ import click
 import torch
 from torch.utils.data import DataLoader
 
+from wildfire_prediction.annotate_dataset import annotate_dataset
 from wildfire_prediction.dataset import WildfireDataset
 from wildfire_prediction.models.alexnet import AlexnetClassifier
 from wildfire_prediction.models.ensemble import Ensemble
@@ -61,13 +62,6 @@ def test(
             model = AlexnetClassifier()
         case "mean_teacher":
             model = MeanTeacherClassifier()
-        case "ensemble":
-            # TODO Hardcoded for now
-            model = Ensemble([
-                AlexnetClassifier(),
-                AlexnetClassifier(),
-                AlexnetClassifier()
-            ])
         case _:
             raise ValueError(f"Unknown classifier variant: {classifier}")
 
@@ -121,13 +115,6 @@ def train(
             model = VitClassifier("vit_b_32")
         case "alexnet":
             model = AlexnetClassifier()
-        case "ensemble":
-            # TODO Hardcoded for now
-            model = Ensemble([
-                AlexnetClassifier(),
-                AlexnetClassifier(),
-                AlexnetClassifier()
-            ])
         case _:
             raise ValueError(f"Unknown classifier variant: {classifier}")
 
@@ -187,6 +174,28 @@ def train_mean_teacher(
         device,
         teacher_student_loss,
     )
+
+@main.command()
+@click.argument(
+    "dataset_path",
+    help="The path to the dataset CSV file to annotate",
+    type=str,
+)
+@click.argument(
+    "output_path",
+    help="The output filename",
+    type=str,
+)
+@classifier
+@click.option(
+    "--checkpoints",
+    help="The path to the folder with checkpoints of the models",
+    type=str,
+)
+def annotate(dataset_path: str, output_path: str, classifier: str, checkpoints: str):
+    ensemble = Ensemble.from_checkpoint_folder(classifier, checkpoints)
+
+    annotate_dataset(dataset_path=dataset_path, output_path=output_path, annotator=ensemble)
 
 
 @main.command()

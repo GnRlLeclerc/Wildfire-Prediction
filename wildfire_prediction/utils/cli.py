@@ -27,7 +27,7 @@ def classifier(func):
         "--classifier",
         help="The classifier to use",
         type=click.Choice(
-            ["resnext", "vit_b_16", "vit_b_32", "alexnet", "mean_teacher", "ensemble"]
+            ["resnext", "vit_b_16", "vit_b_32", "alexnet", "mean_teacher"]
         ),
     )(func)
 
