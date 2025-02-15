@@ -4,6 +4,7 @@ from wildfire_prediction.models.ensemble import Ensemble
 import torch
 import torchvision.transforms.v2 as transforms
 from PIL import Image
+from tqdm import tqdm
 
 
 _transforms = transforms.Compose(
@@ -30,7 +31,7 @@ def annotate_dataset(
     data = np.loadtxt(dataset_path, dtype=str, delimiter=";") 
     labeled_data = []
  
-    for item in data:
+    for item in tqdm(data):
         path = item[0]
         img = Image.open(path)
 
