@@ -8,6 +8,20 @@ from wildfire_prediction.models.resnext import ResnextClassifier
 from wildfire_prediction.models.vit import VitClassifier
 
 
+def _get_classifier(classifier: str):
+        match classifier:
+            case "resnext":
+                return ResnextClassifier()
+            case "vit_b_16":
+                return VitClassifier("vit_b_16")
+            case "vit_b_32":
+                return VitClassifier("vit_b_32")
+            case "alexnet":
+                return AlexnetClassifier()
+            case _:
+                raise ValueError(f"Unknown classifier variant: {classifier}")
+            
+
 class Ensemble():
     def __init__(self, models: List[Classifier], weight_paths: Optional[List[str]] = None):        
         self.models = models
@@ -24,7 +38,7 @@ class Ensemble():
         for filename in os.listdir(checkpoint_folder):
             file_path = os.path.join(checkpoint_folder, filename)
             weight_paths.append(file_path)
-            models.append(__get_classifier(classifier))
+            models.append(_get_classifier(classifier))
 
         return Ensemble(models, weight_paths)
     
@@ -48,16 +62,3 @@ class Ensemble():
 
         return torch.mean(gathered_predictions, 1), torch.var(gathered_predictions, 1)
     
-
-def __get_classifier(classifier: str):
-        match classifier:
-            case "resnext":
-                return ResnextClassifier()
-            case "vit_b_16":
-                return VitClassifier("vit_b_16")
-            case "vit_b_32":
-                return VitClassifier("vit_b_32")
-            case "alexnet":
-                return AlexnetClassifier()
-            case _:
-                raise ValueError(f"Unknown classifier variant: {classifier}")
