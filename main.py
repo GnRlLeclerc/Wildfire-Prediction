@@ -176,13 +176,13 @@ def train_mean_teacher(
     )
 
 @main.command()
-@click.argument(
-    "dataset_path",
+@click.option(
+    "--dataset_path",
     help="The path to the dataset CSV file to annotate",
     type=str,
 )
-@click.argument(
-    "output_path",
+@click.option(
+    "--output_path",
     help="The output filename",
     type=str,
 )
