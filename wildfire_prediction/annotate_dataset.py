@@ -39,7 +39,8 @@ def annotate_dataset(
             img = _transforms(img)
         except:
             continue
-
+        
+        img = img.unsqueeze(0) # Add batch dimension
         prediction, variance = annotator.predict_with_uncertainty(img)
 
         if torch.mean(variance) < uncertainty_threshold: 
