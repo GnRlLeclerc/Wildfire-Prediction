@@ -87,7 +87,6 @@ def test(
 @main.command()
 @classifier
 @batch_size
-@checkpoints
 @device
 @click.option(
     "--epochs",
@@ -101,7 +100,6 @@ def test(
 )
 def train(
     classifier: str,
-    checkpoints: str,
     batch_size: int,
     device: str,
     epochs: int,
@@ -121,11 +119,6 @@ def train(
         case _:
             raise ValueError(f"Unknown classifier variant: {classifier}")
 
-    # Load the model checkpoints
-    model.load_state_dict(
-        torch.load(checkpoints, weights_only=True, map_location=device)
-    )
-    
     # Load the dataset
     train_dataset = WildfireDataset("train")
     test_dataset = WildfireDataset("test")
