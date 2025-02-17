@@ -23,6 +23,7 @@ from wildfire_prediction.utils.cli import (
     device,
     save_results,
     teacher_student_loss,
+    temperature,
 )
 from wildfire_prediction.utils.results import Results
 from wildfire_prediction.utils.files import (
@@ -129,9 +130,11 @@ def train(
 
 
 @main.command()
+@classifier
 @batch_size
 @device
 @teacher_student_loss
+@temperature
 @click.option(
     "--epochs",
     help="The amount of epochs to train the model for",
@@ -143,15 +146,17 @@ def train(
     type=float,
 )
 def train_mean_teacher(
+    classifier: str,
     batch_size: int,
     device: str,
     teacher_student_loss: str,
+    temperature: float | None,
     epochs: int,
     learning_rate: float,
 ):
     """Train mean teacher classifier."""
 
-    model = MeanTeacherClassifier()
+    model = MeanTeacherClassifier(classifier)
 
     # Load the dataset
     train_dataset = WildfireDataset("train")
@@ -173,7 +178,9 @@ def train_mean_teacher(
         learning_rate,
         device,
         teacher_student_loss,
+        temperature,
     )
+
 
 @main.command()
 @click.option(

@@ -1,30 +1,34 @@
 """Mean-Teacher SSL method"""
 
-import torch
-from torch import Tensor, nn
-from torchvision.models.resnet import ResNeXt50_32X4D_Weights
+from torch import Tensor
 
+from wildfire_prediction.models.alexnet import AlexnetClassifier
 from wildfire_prediction.models.base import Classifier
+from wildfire_prediction.models.resnext import ResnextClassifier
+from wildfire_prediction.models.vit import VitClassifier
+
+
+def _get_classifier(classifier: str):
+    match classifier:
+        case "resnext":
+            return ResnextClassifier()
+        case "vit_b_16":
+            return VitClassifier("vit_b_16")
+        case "vit_b_32":
+            return VitClassifier("vit_b_32")
+        case "alexnet":
+            return AlexnetClassifier()
+        case _:
+            raise ValueError(f"Unknown classifier variant: {classifier}")
 
 
 class MeanTeacherClassifier(Classifier):
-    def __init__(self, num_classes: int = 1) -> None:
+    def __init__(self, classifier: str = "alexnet") -> None:
         """Initialize the classifier"""
         super().__init__()
 
-        self.student = torch.hub.load(
-            "pytorch/vision:v0.10.0",
-            "resnext50_32x4d",
-            weights=ResNeXt50_32X4D_Weights.DEFAULT,
-        )
-        self.teacher = torch.hub.load(
-            "pytorch/vision:v0.10.0",
-            "resnext50_32x4d",
-            weights=ResNeXt50_32X4D_Weights.DEFAULT,
-        )
-
-        self.student.fc = nn.Linear(self.student.fc.in_features, num_classes)  # type: ignore
-        self.teacher.fc = nn.Linear(self.teacher.fc.in_features, num_classes)  # type: ignore
+        self.student = _get_classifier(classifier)
+        self.teacher = _get_classifier(classifier)
 
         # Initialise teacher model to match student model
         self.teacher.load_state_dict(self.student.state_dict())
@@ -32,7 +36,7 @@ class MeanTeacherClassifier(Classifier):
     def forward(self, x: Tensor):
         return self.student(x)  # type: ignore
 
-    def update_teacher(self, alpha: float = 0.99):
+    def update_teacher(self, alpha: float = 0.9):
         """Update teacher weights using exponential moving average (EMA) of student weights"""
 
         for student_param, teacher_param in zip(

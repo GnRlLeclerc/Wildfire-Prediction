@@ -60,3 +60,11 @@ def teacher_student_loss(func):
             'kl_divergence' - KL divergence with temperature scaling""",
         type=click.Choice(["mse_standard", "mse_scaled", "kl_divergence"]),
     )(func)
+
+
+def temperature(func):
+    return click.option(
+        "--temperature",
+        default=0.5,
+        type=float,
+    )(func)
