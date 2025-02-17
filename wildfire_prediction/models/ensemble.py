@@ -58,7 +58,7 @@ class Ensemble():
             prediction = model(x)
             predictions.append(prediction)
 
-        gathered_predictions = torch.cat(predictions, 1)
+        gathered_predictions = torch.cat(torch.sigmoid(predictions), 1)
 
-        return torch.mean(torch.sigmoid(gathered_predictions), 1), torch.var(gathered_predictions, 1)
+        return torch.mean(gathered_predictions, 1), torch.var(gathered_predictions, 1)
     
