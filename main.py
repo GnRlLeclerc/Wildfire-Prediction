@@ -101,6 +101,7 @@ def test(
 )
 def train(
     classifier: str,
+    checkpoints: str,
     batch_size: int,
     device: str,
     epochs: int,
