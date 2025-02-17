@@ -49,7 +49,7 @@ class Ensemble():
             prediction = model(x)
             predictions.append(prediction)
 
-        return torch.mean(torch.cat(predictions, 1), 1)
+        return torch.mean(torch.cat(torch.sigmoid(predictions), 1), 1)
     
     def predict_with_uncertainty(self, x: Tensor):
         predictions = []
@@ -60,5 +60,5 @@ class Ensemble():
 
         gathered_predictions = torch.cat(predictions, 1)
 
-        return torch.mean(gathered_predictions, 1), torch.var(gathered_predictions, 1)
+        return torch.mean(torch.sigmoid(gathered_predictions), 1), torch.var(gathered_predictions, 1)
     
