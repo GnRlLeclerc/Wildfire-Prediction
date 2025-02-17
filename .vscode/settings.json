@@ -3,8 +3,7 @@
   "editor.formatOnSave": true, // Format files on save
   "formatFiles.runOrganizeImports": true, // Sort imports when formatting
   "editor.codeActionsOnSave": {
-    // Organize imports on save
-    "source.organizeImports": true
+    "source.organizeImports": "explicit"
   },
 
   // Python
