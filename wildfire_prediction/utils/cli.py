@@ -68,3 +68,10 @@ def temperature(func):
         default=0.5,
         type=float,
     )(func)
+
+def threshold(func):
+    return click.option(
+        "--threshold",
+        default=0.95,
+        type=float,
+    )(func)

@@ -16,6 +16,7 @@ from wildfire_prediction.models.vit import VitClassifier
 from wildfire_prediction.test.classifier import test_classifier
 from wildfire_prediction.train.classifier import train_classifier
 from wildfire_prediction.train.mean_teacher import train_mean_teacher_classifier
+from wildfire_prediction.train.fixmatch import train_FixMatch_classifier
 from wildfire_prediction.utils.cli import (
     batch_size,
     checkpoints,
@@ -24,12 +25,14 @@ from wildfire_prediction.utils.cli import (
     save_results,
     teacher_student_loss,
     temperature,
+    threshold,
 )
 from wildfire_prediction.utils.results import Results
 from wildfire_prediction.utils.files import (
     get_filename,
     recursive_list_files,
 )
+from wildfire_prediction.utils.images import CutoutDefault, RandAugment
 
 
 @click.group()
@@ -179,6 +182,76 @@ def train_mean_teacher(
         device,
         teacher_student_loss,
         temperature,
+    )
+
+@main.command()
+@classifier
+@batch_size
+@device
+@threshold
+@temperature
+@click.option(
+    "--epochs",
+    help="The amount of epochs to train the model for",
+    type=int,
+)
+@click.option(
+    "--learning-rate",
+    help="The optimizer learning rate",
+    type=float,
+)
+@click.option(
+    "--threshold",
+    help="The threshold for pseudo-labeling",
+    type=float,
+    default=0.95,
+)
+def train_FixMatch(
+    classifier: str,
+    batch_size: int,
+    device: str,
+    temperature: float | None,
+    epochs: int,
+    learning_rate: float,
+    threshold: float,
+):
+    """Train FixMatch classifier."""
+
+    match classifier:
+        case "resnext":
+            model = ResnextClassifier()
+        case "vit_b_16":
+            model = VitClassifier("vit_b_16")
+        case "vit_b_32":
+            model = VitClassifier("vit_b_32")
+        case "alexnet":
+            model = AlexnetClassifier()
+        case _:
+            raise ValueError(f"Unknown classifier variant: {classifier}")
+
+
+    # Load the dataset
+    train_dataset = WildfireDataset("train")
+    test_dataset = WildfireDataset("test")
+    train_dataset_unlabeled = WildfireDataset("train_unlabeled")
+
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size)
+
+    train_loader_unlabeled = DataLoader(
+        train_dataset_unlabeled, batch_size=batch_size, shuffle=True
+    )   
+
+    train_FixMatch_classifier(
+        model,
+        train_loader,
+        train_loader_unlabeled,
+        test_loader,
+        epochs,
+        learning_rate,
+        device,
+        temperature,
+        threshold
     )
 
 
