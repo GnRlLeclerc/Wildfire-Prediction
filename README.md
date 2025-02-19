@@ -41,6 +41,7 @@ The following cli commands are available. Run `python main.py --help` for more i
 | `test`  | Test a classifier model       |
 | `train` | Train a classifier model      |
 | `train-fixmatch` | Train a classifier model using FixMatch | 
+| `train-mean-teacher` | Train a classifier model using Mean Teacher |
 | `logs`  | Plot classifier training logs |
 
 ### Testing a model
@@ -56,9 +57,15 @@ python main.py test --classifier resnext --checkpoints model.pth
 ```bash
 python main.py train --classifier resnext --epochs 30 --learning-rate 0.0001 --batch-size 8
 ```
-Or with FixMatch :
+
+With FixMatch :
 ```
 python main.py train-fixmatch --classifier resnext --epochs 30 --learning-rate 0.00005 --batch-size 8 --threshold 0.999
+```
+
+With Mean Teacher :
+```
+python main.py train-mean-teacher --classifier resnext --epochs 30 --learning-rate 0.0001 --batch-size 32 --teacher_student_loss mse_scaled --temperature 0.7
 ```
 
 ### Plot training logs
