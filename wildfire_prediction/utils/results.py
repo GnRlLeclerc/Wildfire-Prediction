@@ -49,9 +49,9 @@ class Results:
         self.accuracy = (self.true_positives + self.true_negatives) / self.total
         self.precision = self.true_positives / (
             self.true_positives + self.false_positives
-        )
-        self.recall = self.true_positives / (self.true_positives + self.false_negatives)
-        self.f1 = 2 * (self.precision * self.recall) / (self.precision + self.recall)
+        ) if self.true_positives + self.false_positives > 0 else 0
+        self.recall = self.true_positives / (self.true_positives + self.false_negatives) if self.true_positives + self.false_negatives > 0 else 0
+        self.f1 = 2 * (self.precision * self.recall) / (self.precision + self.recall) if self.precision + self.recall > 0 else 0
 
     def __str__(self) -> str:
         parts = []
@@ -101,6 +101,7 @@ class Results:
         plt.title("Training Loss")
         plt.grid()
         plt.show()
+        plt.savefig("loss.png")
 
     @staticmethod
     def plot_metrics(training: list["Results"], testing: list["Results"]):
@@ -144,6 +145,7 @@ class Results:
                 cell.grid()
 
         plt.show()
+        plt.savefig("metrics.png")
 
     @staticmethod
     def plot_evaluations(results: list["Results"], models: list[str]):

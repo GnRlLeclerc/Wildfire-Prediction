@@ -206,6 +206,12 @@ def train_mean_teacher(
     type=float,
     default=0.95,
 )
+@click.option(
+    "--mu",
+    help="The number of unlabeled samples per labeled sample",
+    type=int,
+    default=7,
+)
 def train_FixMatch(
     classifier: str,
     batch_size: int,
@@ -214,6 +220,7 @@ def train_FixMatch(
     epochs: int,
     learning_rate: float,
     threshold: float,
+    mu: int,
 ):
     """Train FixMatch classifier."""
 
@@ -229,17 +236,29 @@ def train_FixMatch(
         case _:
             raise ValueError(f"Unknown classifier variant: {classifier}")
 
-
     # Load the dataset
     train_dataset = WildfireDataset("train")
     test_dataset = WildfireDataset("test")
     train_dataset_unlabeled = WildfireDataset("train_unlabeled")
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    train_loader = DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=True
+    )
+    # keep 5% of train_loader
+    # train_loader = DataLoader(
+    #     torch.utils.data.Subset(
+    #         train_dataset, 
+    #         torch.randperm(len(train_dataset))[:int(0.05 * len(train_dataset))]
+    #     ),
+    #     batch_size=batch_size,
+    #     shuffle=True,
+    # )
+
     test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
     train_loader_unlabeled = DataLoader(
-        train_dataset_unlabeled, batch_size=batch_size, shuffle=True
+        train_dataset_unlabeled, batch_size=batch_size*mu, shuffle=True
     )   
 
     train_FixMatch_classifier(
@@ -249,9 +268,8 @@ def train_FixMatch(
         test_loader,
         epochs,
         learning_rate,
+        threshold,
         device,
-        temperature,
-        threshold
     )
 
 

@@ -64,28 +64,36 @@ class RandAugment:
         self.N = N  # Number of augmentations to apply
         self.M = M  # Magnitude for each augmentation
         self.augmentations = [
-            transforms.RandomHorizontalFlip(),
-            transforms.RandomCrop(size=(32, 32), padding=4),
+            # transforms.RandomHorizontalFlip(),
+            # transforms.RandomCrop(size=(224, 224), padding=28), # shift image up to 12.5% of the image size
             transforms.ColorJitter(contrast=random.uniform(0.05, 0.95)),
             transforms.ColorJitter(brightness=random.uniform(0.05, 0.95)),
             transforms.RandomAutocontrast(),
-            transforms.ColorJitter(contrast=random.uniform(0.05, 0.95)),
+            transforms.ColorJitter(saturation=random.uniform(0.05, 0.95)),
             #transforms.RandomEqualize(),
             #transforms.RandomPosterize(bits=random.randrange(4, 8)),
-            transforms.RandomRotation(degrees=(-30, 30),interpolation=transforms.InterpolationMode.NEAREST),
+            transforms.RandomRotation(degrees=(-30, 30), interpolation=transforms.InterpolationMode.NEAREST),
             transforms.RandomAdjustSharpness(sharpness_factor=random.uniform(0.05, 0.95)),
-            transforms.RandomAffine(degrees=0,shear=(-0.3, 0.3),interpolation=transforms.InterpolationMode.NEAREST),
-            transforms.RandomAffine(degrees=0,translate=(0.3, 0.3),interpolation=transforms.InterpolationMode.NEAREST),
-            transforms.RandomAffine(degrees=0,translate=(0, 0), scale=(0.7, 1.3),interpolation=transforms.InterpolationMode.NEAREST),
+            transforms.RandomAffine(degrees=0, shear=(-0.3, 0.3), interpolation=transforms.InterpolationMode.NEAREST),
+            transforms.RandomAffine(degrees=0, translate=(0.3, 0.3), interpolation=transforms.InterpolationMode.NEAREST),
+            transforms.RandomAffine(degrees=0, translate=(0, 0), scale=(0.7, 1.3), interpolation=transforms.InterpolationMode.NEAREST),
             transforms.RandomSolarize(threshold=random.random())
         ]
 
-    def __call__(self, img):
+    def _apply_single(self, img):
         ops = random.sample(self.augmentations, self.N)
         for op in ops:
-          if random.random() > 0.5:
-                img = op(img)
+            img = op(img)
         return img
+
+    def __call__(self, img):
+        # If batched: iterate over batch items
+        if img.ndim == 4:
+            # Process each image in the batch individually
+            augmented = [self._apply_single(img_i) for img_i in img]
+            return torch.stack(augmented)
+        else:
+            return self._apply_single(img)
 
 
 class CutoutDefault(object):
@@ -95,9 +103,10 @@ class CutoutDefault(object):
     def __init__(self, length):
         self.length = length
 
-    def __call__(self, img):
+    def _apply_single(self, img):
         if self.length <= 0:
             return img
+
         h, w = img.size(1), img.size(2)
         mask = np.ones((h, w), np.float32)
         y = np.random.randint(h)
@@ -111,5 +120,13 @@ class CutoutDefault(object):
         mask[y1: y2, x1: x2] = 0.
         mask = torch.from_numpy(mask)
         mask = mask.expand_as(img)
-        img *= mask
+        img = img * mask
         return img
+
+    def __call__(self, img):
+        # Process a batch of images or single image
+        if img.ndim == 4:
+            processed = [self._apply_single(img_i) for img_i in img]
+            return torch.stack(processed)
+        else:
+            return self._apply_single(img)

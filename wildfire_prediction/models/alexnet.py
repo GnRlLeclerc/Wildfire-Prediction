@@ -11,7 +11,7 @@ class AlexnetClassifier(Classifier):
     def __init__(self) -> None:
         super().__init__()
 
-        self.alexnet = models.alexnet(pretrained=False)
+        self.alexnet = models.alexnet(pretrained=True)
         n_alexnet_out_features = self.alexnet.classifier[-1].out_features
         self.classifier = nn.Linear(n_alexnet_out_features, 1)
 
