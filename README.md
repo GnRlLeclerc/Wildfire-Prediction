@@ -74,3 +74,9 @@ python main.py train-mean-teacher --classifier resnext --epochs 30 --learning-ra
 ```bash
 python main.py logs --path training_logs.jsonl
 ```
+
+### Annotating dataset
+
+```bash
+python main.py annotate --dataset_path train_unlabeled.csv --output_path <output.csv> --classifier <classifier> --checkpoints <path_to_checkpoints_directory>
+```
