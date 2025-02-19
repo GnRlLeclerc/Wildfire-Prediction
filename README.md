@@ -36,13 +36,13 @@ unzip -q wildfire-prediction-dataset.zip -d dataset
 
 The following cli commands are available. Run `python main.py --help` for more information.
 
-| Command | Description                   |
-| ------- | ----------------------------- |
-| `test`  | Test a classifier model       |
-| `train` | Train a classifier model      |
-| `train-fixmatch` | Train a classifier model using FixMatch | 
+| Command              | Description                                 |
+| -------------------- | ------------------------------------------- |
+| `test`               | Test a classifier model                     |
+| `train`              | Train a classifier model                    |
+| `train-fixmatch`     | Train a classifier model using FixMatch     |
 | `train-mean-teacher` | Train a classifier model using Mean Teacher |
-| `logs`  | Plot classifier training logs |
+| `logs`               | Plot classifier training logs               |
 
 ### Testing a model
 
@@ -60,11 +60,13 @@ python main.py train --classifier resnext --epochs 30 --learning-rate 0.0001 --b
 ```
 
 With FixMatch :
+
 ```
 python main.py train-fixmatch --classifier resnext --epochs 30 --learning-rate 0.00005 --batch-size 8 --threshold 0.999
 ```
 
 With Mean Teacher :
+
 ```
 python main.py train-mean-teacher --classifier resnext --epochs 30 --learning-rate 0.0001 --batch-size 32 --teacher_student_loss mse_scaled --temperature 0.7
 ```
@@ -75,7 +77,7 @@ python main.py train-mean-teacher --classifier resnext --epochs 30 --learning-ra
 python main.py logs --path training_logs.jsonl
 ```
 
-### Annotating dataset
+### Annotating dataset with Ensemble
 
 ```bash
 python main.py annotate --dataset_path train_unlabeled.csv --output_path <output.csv> --classifier <classifier> --checkpoints <path_to_checkpoints_directory>
