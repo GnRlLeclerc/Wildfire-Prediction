@@ -47,6 +47,7 @@ The following cli commands are available. Run `python main.py --help` for more i
 ### Testing a model
 
 Make sure that you have the relevant model checkpoints.
+To test a FixMatch model, simply use the same command with a FixMatch checkpoint.
 
 ```bash
 python main.py test --classifier resnext --checkpoints model.pth
