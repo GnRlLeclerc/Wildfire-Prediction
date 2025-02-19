@@ -65,9 +65,9 @@ def teacher_student_loss(func):
 def temperature(func):
     return click.option(
         "--temperature",
-        default=0.5,
         type=float,
     )(func)
+
 
 def threshold(func):
     return click.option(

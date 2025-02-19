@@ -21,10 +21,11 @@ def kl_divergence_loss(
     """Computes Kullback-Leibler (KL) divergence loss with temperature scaling"""
 
     # Apply temperature scaling
+    input_logits_scaled = input_logits / temperature
     target_logits_scaled = target_logits / temperature
 
     # Get probability distributions
-    input_probs = F.log_softmax(input_logits, dim=-1)
+    input_probs = F.log_softmax(input_logits_scaled, dim=-1)
     output_probs = F.softmax(target_logits_scaled, dim=-1)
 
     # KL divergence

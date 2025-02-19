@@ -23,7 +23,16 @@ def _get_classifier(classifier: str):
 
 
 class MeanTeacherClassifier(Classifier):
-    def __init__(self, classifier: str = "alexnet") -> None:
+    """
+    Implements the Mean Teacher model for semi-supervised learning
+
+    Reference:
+        Tarvainen, A. and Valpola, H. (2017). Mean teachers are better role models:
+        Weight-averaged consistency targets improve semi-supervised deep learning results.
+        https://arxiv.org/pdf/1703.01780
+    """
+
+    def __init__(self, classifier: str = "resnext") -> None:
         """Initialize the classifier"""
         super().__init__()
 
@@ -36,7 +45,7 @@ class MeanTeacherClassifier(Classifier):
     def forward(self, x: Tensor):
         return self.student(x)  # type: ignore
 
-    def update_teacher(self, alpha: float = 0.9):
+    def update_teacher(self, alpha: float = 0.99):
         """Update teacher weights using exponential moving average (EMA) of student weights"""
 
         for student_param, teacher_param in zip(
